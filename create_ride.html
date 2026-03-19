@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Create Ride{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-title">Create a Ride 🚗</div>
+  <div class="page-subtitle">Set your route — classmates can join you on the way to college.</div>
+
+  <div class="card">
+    <form method="post">
+
+      <div class="form-group">
+        <label>📍 Where are you starting from?</label>
+        <input type="text" name="start_location"
+               placeholder="e.g. Ganesh Nagar" required autofocus />
+      </div>
+
+      <div class="form-group">
+        <label>🛣️ Via Points <span style="font-weight:400;text-transform:none;letter-spacing:0">(stops along the way)</span></label>
+        <div id="via-container"></div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="addVia()" style="margin-top:0.4rem">
+          + Add Via Point
+        </button>
+      </div>
+
+      <div id="route-preview-box" class="route-preview-box"></div>
+
+      <div class="form-group" style="margin-top:1rem">
+        <label>🏫 Destination (always College)</label>
+        <input type="text" value="College" disabled />
+      </div>
+
+      <!-- Date, Day, Time row -->
+      <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr">
+        <div class="form-group">
+          <label>📅 Date</label>
+          <input type="date" name="ride_date" id="ride_date" required />
+        </div>
+        <div class="form-group">
+          <label>📆 Day</label>
+          <input type="text" name="ride_day" id="ride_day" readonly
+                 style="background:var(--surface); cursor:default; color:var(--accent); font-weight:600" />
+        </div>
+        <div class="form-group">
+          <label>🕐 Departure Time</label>
+          <input type="time" name="time" id="ride_time" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>💺 Available Seats</label>
+        <input type="number" name="seats" min="1" max="8" placeholder="e.g. 3" required />
+      </div>
+
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem">
+        <button type="submit" class="btn btn-primary">Publish Ride →</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" style="background:rgba(244,167,42,.04);border-color:rgba(244,167,42,.2)">
+    <div class="card-title" style="border-color:rgba(244,167,42,.2); color:var(--accent)">
+      💡 Tip
+    </div>
+    <p style="font-size:0.88rem; color:var(--muted); line-height:1.8">
+      The more via points you add, the more passengers can find your ride.<br>
+      Example: <strong style="color:var(--text)">Ganesh Nagar → Gangapur → Pancal → Fatehpura → College</strong>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Set today's date as default and compute day name
+  const dateInput = document.getElementById("ride_date");
+  const dayInput  = document.getElementById("ride_day");
+
+  function updateDay(dateStr) {
+    if (!dateStr) { dayInput.value = ""; return; }
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    // Parse as local date (avoid UTC offset shift)
+    const [y, m, d] = dateStr.split("-").map(Number);
+    dayInput.value = days[new Date(y, m - 1, d).getDay()];
+  }
+
+  // Default to today
+  const today = new Date();
+  const yyyy  = today.getFullYear();
+  const mm    = String(today.getMonth() + 1).padStart(2, "0");
+  const dd    = String(today.getDate()).padStart(2, "0");
+  dateInput.value = `${yyyy}-${mm}-${dd}`;
+  updateDay(dateInput.value);
+
+  // Update day whenever date changes
+  dateInput.addEventListener("change", () => updateDay(dateInput.value));
+</script>
+{% endblock %}

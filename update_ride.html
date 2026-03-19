@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Update Ride{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-title">Update Today's Ride ✏️</div>
+  <div class="page-subtitle">
+    What do you want to do with your ride from
+    <strong>{{ ride.start_location }}</strong> at <strong>{{ ride.time }}</strong>?
+  </div>
+
+  <div class="option-cards">
+    <div class="option-card selected" id="opt-keep" onclick="selectOption('keep')">
+      <div class="option-icon">✅</div>
+      <div class="option-label">Keep Same Ride</div>
+      <div class="option-desc">Same route, time, and seats</div>
+    </div>
+    <div class="option-card" id="opt-update" onclick="selectOption('update')">
+      <div class="option-icon">✏️</div>
+      <div class="option-label">Update Route / Time</div>
+      <div class="option-desc">Change locations, time, or seat count</div>
+    </div>
+    <div class="option-card" id="opt-cancel" onclick="selectOption('cancel')">
+      <div class="option-icon">❌</div>
+      <div class="option-label">Cancel This Ride</div>
+      <div class="option-desc">Remove this ride entirely</div>
+    </div>
+  </div>
+
+  <form method="post" id="main-form">
+    <input type="hidden" name="action" id="action-field" value="keep" />
+
+    <div id="edit-form" style="display:none">
+      <div class="card">
+        <div class="card-title">🛣️ Update Route &amp; Details</div>
+
+        <div class="form-group">
+          <label>📍 Start Location</label>
+          <input type="text" name="start_location" value="{{ ride.start_location }}" required />
+        </div>
+
+        <div class="form-group">
+          <label>🛣️ Via Points</label>
+          <div id="via-container"></div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="addVia()" style="margin-top:0.4rem">
+            + Add Via Point
+          </button>
+        </div>
+
+        <div id="route-preview-box" class="route-preview-box"></div>
+
+        <div class="form-group" style="margin-top:1rem">
+          <label>🏫 Destination (always College)</label>
+          <input type="text" value="College" disabled />
+        </div>
+
+        <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr">
+          <div class="form-group">
+            <label>📅 Date</label>
+            <input type="date" name="ride_date" id="ride_date"
+                   value="{{ ride.ride_date }}" required />
+          </div>
+          <div class="form-group">
+            <label>📆 Day</label>
+            <input type="text" name="ride_day" id="ride_day"
+                   value="{{ ride.ride_day }}" readonly
+                   style="background:var(--surface); cursor:default; color:var(--accent); font-weight:600" />
+          </div>
+          <div class="form-group">
+            <label>🕐 Departure Time</label>
+            <input type="time" name="time" value="{{ time_24 }}" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>💺 Available Seats</label>
+          <input type="number" name="seats" min="1" max="8" value="{{ ride.seats }}" required />
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap">
+      <button type="submit" class="btn btn-primary" id="submit-btn">✅ Keep Same Ride</button>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline">← Back</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  window.__VIA_PREFILL__ = {{ via_points | tojson }};
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function selectOption(choice) {
+    document.querySelectorAll(".option-card").forEach(c => c.classList.remove("selected"));
+    const card = document.getElementById("opt-" + choice);
+    if (card) card.classList.add("selected");
+    document.getElementById("edit-form").style.display = (choice === "update") ? "block" : "none";
+    document.getElementById("action-field").value = choice;
+    const labels = {
+      keep:   "✅ Keep Same Ride",
+      update: "💾 Save Changes",
+      cancel: "❌ Cancel This Ride"
+    };
+    const btn = document.getElementById("submit-btn");
+    btn.textContent = labels[choice] || "Submit";
+    btn.onclick = (choice === "cancel") ? () => confirm("Are you sure you want to cancel this ride?") : null;
+  }
+
+  // Auto-update day when date changes
+  const dateInput = document.getElementById("ride_date");
+  const dayInput  = document.getElementById("ride_day");
+  if (dateInput) {
+    function updateDay(dateStr) {
+      if (!dateStr) return;
+      const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      const [y, m, d] = dateStr.split("-").map(Number);
+      dayInput.value = days[new Date(y, m - 1, d).getDay()];
+    }
+    dateInput.addEventListener("change", () => updateDay(dateInput.value));
+    // Set day on load if date is populated
+    if (dateInput.value) updateDay(dateInput.value);
+  }
+</script>
+{% endblock %}

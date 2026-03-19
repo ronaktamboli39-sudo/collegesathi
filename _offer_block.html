@@ -1,0 +1,49 @@
+{% if not item.existing %}
+<div class="offer-section">
+  <form method="post" action="{{ url_for('send_request', ride_id=item.ride.id) }}">
+    <div class="offer-row">
+      <div class="form-group">
+        <label>💰 Your Offer (₹)</label>
+        <input type="number" name="offer_price" min="1"
+               placeholder="e.g. 40" style="width:120px" required />
+      </div>
+      <button class="btn btn-primary btn-sm"
+              style="align-self:flex-end; margin-bottom:1.15rem">
+        Send Offer 🤝
+      </button>
+      <span class="offer-note">Driver will accept or reject</span>
+    </div>
+  </form>
+</div>
+
+{% elif item.existing.status == 'rejected' %}
+<div class="offer-section">
+  <div class="alert alert-error" style="margin-bottom:0.6rem; padding:8px 12px; font-size:0.83rem">
+    ❌ Offer rejected. Raise your bid:
+  </div>
+  <form method="post" action="{{ url_for('send_request', ride_id=item.ride.id) }}">
+    <div class="offer-row">
+      <div class="form-group">
+        <label>New Offer (₹)</label>
+        <input type="number" name="offer_price" min="1"
+               value="{{ (item.existing.offer_price + 10) | int }}"
+               style="width:120px" required />
+      </div>
+      <button class="btn btn-primary btn-sm"
+              style="align-self:flex-end; margin-bottom:1.15rem">
+        Send Again
+      </button>
+    </div>
+  </form>
+</div>
+
+{% elif item.existing.status == 'accepted' %}
+<div class="alert alert-success" style="margin-top:0.75rem; padding:8px 14px; font-size:0.88rem">
+  ✅ Offer accepted! ₹{{ item.existing.offer_price | int }} — Get ready to ride!
+</div>
+
+{% elif item.existing.status == 'pending' %}
+<div class="already-badge" style="margin-top:0.75rem">
+  ⏳ Offer sent: ₹{{ item.existing.offer_price | int }} — Waiting for driver's reply
+</div>
+{% endif %}

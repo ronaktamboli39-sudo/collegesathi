@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Ride Requests{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-title">Ride Requests 📬</div>
+  <div class="page-subtitle">
+    These passengers want to join your ride. Accept or reject their offers.
+  </div>
+
+  {% if requests %}
+    <div style="color:var(--muted); font-size:0.88rem; margin-bottom:1.2rem">
+      {{ requests | length }} pending request{{ 's' if requests|length != 1 }}
+    </div>
+
+    {% for item in requests %}
+    <div class="req-card">
+      <div class="req-info">
+        <div class="req-name">👤 {{ item.req.passenger_name }}</div>
+        <div class="req-detail">
+          Ride: <strong>{{ item.req.start_location }}</strong> → College &nbsp;·&nbsp;
+          📅 {{ item.req.ride_day }}{% if item.req.ride_date %}, {{ item.req.ride_date }}{% endif %} &nbsp;·&nbsp;
+          🕐 {{ item.req.time }}
+        </div>
+        <div class="req-route">🛣️ {{ item.route }}</div>
+      </div>
+      <div class="req-price">₹{{ item.req.offer_price | int }}</div>
+      <div class="req-actions">
+        <form method="post" action="{{ url_for('handle_request', req_id=item.req.id) }}">
+          <input type="hidden" name="action" value="accept" />
+          <button class="btn btn-green btn-sm">✓ Accept</button>
+        </form>
+        <form method="post" action="{{ url_for('handle_request', req_id=item.req.id) }}">
+          <input type="hidden" name="action" value="reject" />
+          <button class="btn btn-red btn-sm">✕ Reject</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div>
+        No pending requests right now.<br>
+        <span style="font-size:0.85rem">When passengers send you an offer, it will appear here.</span>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:1.5rem">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline">← Back to Home</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
