@@ -1,53 +1,119 @@
-# CarpoolGo – College Carpool App
+# 🚗 CollegeSaathi – Carpool Web App
 
-A simple web app where college students can share rides.
+**Built for MLVTIANS, by an MLVTIAN.**
 
-## Setup & Run
+CollegeSaathi is a simple and smart carpooling web application designed exclusively for MLVTIANS. It helps students connect, share rides, and reduce travel costs while building a community.
 
-```bash
-# 1. Install Flask
-pip install flask
+---
 
-# 2. Run the app
-python app.py
+## 🌟 Features
 
-# 3. Open in browser
-http://127.0.0.1:5000
+* 🔐 User Authentication (Register / Login)
+* 🚘 Create and Manage Rides
+* 📍 Add Route with Multiple Stops (via points)
+* 🔎 Search Rides by Location (Landmark-based)
+* 💰 Send Ride Requests with Offer Price
+* 📩 Driver Dashboard to Accept/Reject Requests
+* 📊 Real-time Ride & Request Management
+
+---
+
+## 🛠️ Tech Stack
+
+* **Backend:** Python (Flask)
+* **Frontend:** HTML, CSS
+* **Database:** SQLite (carpool.db)
+* **Deployment:** Render
+
+---
+
+## 📂 Project Structure
+
 ```
-
-## How It Works
-
-### As a Driver
-1. Register / Login
-2. Click **+ Ride** → enter start location, add via points, set time & seats
-3. Go to **Requests** to accept/reject passenger offers
-
-### As a Passenger
-1. Register / Login
-2. Click **Search** → type your location
-3. If a ride passes through your area, send a price offer
-4. Check **Dashboard** to see if driver accepted
-
-## Project Structure
-```
-carpool/
-├── app.py              ← Flask backend (all routes)
-├── requirements.txt    ← Just flask
-├── carpool.db          ← SQLite DB (auto-created on first run)
+CollegeSaathi/
+│── app.py
+│── carpool.db
+│── requirements.txt
+│
 ├── templates/
-│   ├── base.html       ← Nav bar + shared layout
 │   ├── login.html
 │   ├── register.html
 │   ├── dashboard.html
 │   ├── create_ride.html
+│   ├── update_ride.html
 │   ├── search.html
 │   └── driver_requests.html
-└── static/
-    └── style.css       ← All styles
+│
+├── static/
+│   ├── style.css
+│   └── assets/
 ```
 
-## Database Tables
-- **users** – id, name, email, password
-- **rides** – id, driver_id, start_location, time, seats, active
-- **route_points** – id, ride_id, location, order_number
-- **requests** – id, ride_id, passenger_id, offer_price, status
+---
+
+## 🚀 Installation & Setup
+
+### 1. Clone the repository
+
+```
+git clone https://github.com/your-username/CollegeSaathi.git
+cd CollegeSaathi
+```
+
+### 2. Install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### 3. Run the app
+
+```
+python app.py
+```
+
+---
+
+## 🌐 Deployment (Render)
+
+* Add `gunicorn` in requirements.txt
+* Start command:
+
+```
+gunicorn app:app
+```
+
+---
+
+## ⚠️ Note
+
+* SQLite database is used for simplicity
+* For production, PostgreSQL is recommended
+
+---
+
+## 💡 Future Improvements
+
+* 📱 Mobile responsiveness
+* 📍 Google Maps integration
+* 🔔 Notifications system
+* 💳 Online payment integration
+
+---
+
+## 👨‍💻 Author
+
+**Ronak Tamboli**
+MLVTIAN 🚀
+
+---
+
+## ❤️ Acknowledgment
+
+Made with passion to simplify daily commute for students.
+
+---
+
+## 📌 Tagline
+
+> Built for MLVTIANS, by an MLVTIAN.
