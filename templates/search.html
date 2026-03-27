@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Find Rides{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-title">Find a Ride 🔍</div>
+  <div class="page-subtitle">
+    All available rides are shown below. Enter your location to see matching rides at the top.
+  </div>
+
+  <!-- ── Search form ── -->
+  <div class="card">
+    <form method="post" style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end">
+      <div class="form-group" style="flex:1; margin:0; min-width:180px">
+        <label>📍 Your Location / Landmark</label>
+        <input type="text" name="location"
+               placeholder="e.g. Pancal Chauraha, Gangapur, Fatehpura..."
+               value="{{ query }}"
+               autofocus />
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-bottom:1.15rem">
+        Search →
+      </button>
+    </form>
+  </div>
+
+  <!-- ══ MATCHED RIDES (only shown after a search) ══ -->
+  {% if matched %}
+  <div class="search-section-header matched-header">
+    <span class="match-icon">🎯</span>
+    <div>
+      <div class="match-title">{{ matched | length }} Ride{{ 's' if matched|length != 1 }} Pass Through Your Location!</div>
+      <div class="match-sub">These rides go through <strong>{{ query }}</strong> on the way to College</div>
+    </div>
+  </div>
+
+    {% for item in matched %}
+    <div class="ride-card ride-matched">
+
+      <div class="match-badge-row">
+        {% if item.match_type == 'start' %}
+          <span class="match-pill start-pill">🟢 Starting Point — {{ query }}</span>
+        {% else %}
+          <span class="match-pill via-pill">🔵 Via Point — {{ query }}</span>
+        {% endif %}
+      </div>
+
+      <div class="ride-header" style="margin-top:0.5rem">
+        <div style="flex:1">
+          <div class="ride-title">{{ item.ride.start_location }} → MLVTEC College</div>
+          <div class="route-string">🛣️ {{ item.route }}</div>
+          <div class="ride-meta">
+            <span>👤 {{ item.ride.driver_name }}</span>
+            {% if item.ride.driver_mobile %}<span>📞 <a href="tel:{{ item.ride.driver_mobile }}" style="color:var(--accent)">{{ item.ride.driver_mobile }}</a></span>{% endif %}
+            <span>📅 {{ item.ride.ride_day }}{% if item.ride.ride_date %}, {{ item.ride.ride_date }}{% endif %}</span>
+            <span>🕐 {{ item.ride.time }}</span>
+            <span>💺 {{ item.ride.seats }} seat{{ 's' if item.ride.seats != 1 }}</span>
+          </div>
+        </div>
+        {% if item.existing %}
+          <span class="badge badge-{{ item.existing.status }}">{{ item.existing.status }}</span>
+        {% endif %}
+      </div>
+
+      {% include "_offer_block.html" %}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ══ ALL / OTHER RIDES ══ -->
+  {% if others %}
+  <div class="search-section-header other-header" style="margin-top:{{ '2rem' if matched else '0' }}">
+    <span class="match-icon">🚌</span>
+    <div>
+      {% if query %}
+        <div class="match-title" style="color:var(--muted)">Other Available Rides</div>
+        <div class="match-sub" style="color:var(--muted)">
+          These rides do not pass through <strong>{{ query }}</strong> — but you can still join them
+        </div>
+      {% else %}
+        <div class="match-title">All Available Rides 🚗</div>
+        <div class="match-sub">These rides are available right now heading to College</div>
+      {% endif %}
+    </div>
+  </div>
+
+    {% for item in others %}
+    <div class="ride-card" style="{{ 'opacity:0.85' if query else '' }}">
+      <div class="ride-header">
+        <div style="flex:1">
+          <div class="ride-title">{{ item.ride.start_location }} → MLVTEC College</div>
+          <div class="route-string">🛣️ {{ item.route }}</div>
+          <div class="ride-meta">
+            <span>👤 {{ item.ride.driver_name }}</span>
+            {% if item.ride.driver_mobile %}<span>📞 <a href="tel:{{ item.ride.driver_mobile }}" style="color:var(--accent)">{{ item.ride.driver_mobile }}</a></span>{% endif %}
+            <span>📅 {{ item.ride.ride_day }}{% if item.ride.ride_date %}, {{ item.ride.ride_date }}{% endif %}</span>
+            <span>🕐 {{ item.ride.time }}</span>
+            <span>💺 {{ item.ride.seats }} seat{{ 's' if item.ride.seats != 1 }}</span>
+          </div>
+        </div>
+        {% if item.existing %}
+          <span class="badge badge-{{ item.existing.status }}">{{ item.existing.status }}</span>
+        {% endif %}
+      </div>
+      {% include "_offer_block.html" %}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ══ No rides at all ══ -->
+  {% if not matched and not others %}
+  <div class="empty-state">
+    <div class="empty-icon">😕</div>
+    <div>
+      No rides available right now.<br>
+      <span style="font-size:0.85rem">
+        Check back later, or
+        <a href="{{ url_for('create_ride') }}">create a ride yourself</a>.
+      </span>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% if not item.existing %}
+<!-- ── Fresh offer ── -->
+<div class="offer-section">
+  <form method="post" action="{{ url_for('send_request', ride_id=item.ride.id) }}">
+    <div class="form-group" style="margin-bottom:0.75rem">
+      <label>📍 Your Pickup Location</label>
+      <input type="text" name="pickup_location"
+             placeholder="Where should the driver pick you up? (e.g. Pancal Bus Stop)"
+             required style="font-size:0.9rem" />
+    </div>
+    <div class="offer-row">
+      <div class="form-group">
+        <label>💰 Your Offer (₹)</label>
+        <input type="number" name="offer_price" min="1"
+               placeholder="e.g. 40" style="width:120px" required />
+      </div>
+      <button class="btn btn-primary btn-sm"
+              style="align-self:flex-end; margin-bottom:1.15rem">
+        Send Offer 🤝
+      </button>
+      <span class="offer-note">Driver will accept, reject, or counter</span>
+    </div>
+  </form>
+</div>
+
+{% elif item.existing.status == 'countered' %}
+<!-- ── Driver made a counter offer — passenger responds ── -->
+<div class="offer-section">
+  <div class="counter-offer-box">
+    <div class="counter-header">🔄 Driver Made a Counter Offer</div>
+    <div class="counter-amounts">
+      <span class="counter-your">Your offer: <strong>₹{{ item.existing.offer_price | int }}</strong></span>
+      <span class="counter-arrow">→</span>
+      <span class="counter-driver">Driver's price: <strong style="color:var(--accent)">₹{{ item.existing.counter_price | int }}</strong></span>
+    </div>
+    <div style="display:flex; gap:0.6rem; margin-top:0.75rem; flex-wrap:wrap">
+      <form method="post" action="{{ url_for('respond_counter', req_id=item.existing.id) }}">
+        <input type="hidden" name="action" value="accept_counter" />
+        <button class="btn btn-green btn-sm">✓ Accept ₹{{ item.existing.counter_price | int }}</button>
+      </form>
+      <form method="post" action="{{ url_for('respond_counter', req_id=item.existing.id) }}">
+        <input type="hidden" name="action" value="decline_counter" />
+        <button class="btn btn-red btn-sm">✕ Decline</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% elif item.existing.status == 'rejected' %}
+<!-- ── Rejected — can raise bid ── -->
+<div class="offer-section">
+  <div class="alert alert-error" style="margin-bottom:0.6rem; padding:8px 12px; font-size:0.83rem">
+    ❌ Offer rejected. Raise your bid to try again:
+  </div>
+  <form method="post" action="{{ url_for('send_request', ride_id=item.ride.id) }}">
+    <div class="form-group" style="margin-bottom:0.75rem">
+      <label>📍 Pickup Location</label>
+      <input type="text" name="pickup_location"
+             placeholder="Where should the driver pick you up?"
+             required style="font-size:0.9rem" />
+    </div>
+    <div class="offer-row">
+      <div class="form-group">
+        <label>New Offer (₹)</label>
+        <input type="number" name="offer_price" min="1"
+               value="{{ (item.existing.offer_price + 10) | int }}"
+               style="width:120px" required />
+      </div>
+      <button class="btn btn-primary btn-sm"
+              style="align-self:flex-end; margin-bottom:1.15rem">
+        Send Again
+      </button>
+    </div>
+  </form>
+</div>
+
+{% elif item.existing.status == 'accepted' %}
+<div class="alert alert-success" style="margin-top:0.75rem; padding:8px 14px; font-size:0.88rem">
+  ✅ Offer accepted! ₹{{ item.existing.offer_price | int }} — Get ready to ride!
+  {% if item.ride.driver_mobile %}
+  <br>📞 Driver's contact: <strong><a href="tel:{{ item.ride.driver_mobile }}" style="color:var(--green)">{{ item.ride.driver_mobile }}</a></strong>
+  {% endif %}
+</div>
+
+{% elif item.existing.status == 'pending' %}
+<div class="already-badge" style="margin-top:0.75rem">
+  ⏳ Offer sent: ₹{{ item.existing.offer_price | int }} — Waiting for driver's reply
+</div>
+{% endif %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CollegeSaathi – {% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+{% if session.user_id %}
+<nav>
+  <a href="{{ url_for('dashboard') }}" class="nav-logo">College<span>Saathi</span></a>
+
+  <div class="nav-links">
+    <a href="{{ url_for('dashboard') }}"
+       {% if request.endpoint == 'dashboard' %}class="active"{% endif %}>
+      🏠 Home
+    </a>
+    <a href="{{ url_for('create_ride') }}"
+       {% if request.endpoint == 'create_ride' %}class="active"{% endif %}>
+      + Create Ride
+    </a>
+    <a href="{{ url_for('search') }}"
+       {% if request.endpoint == 'search' %}class="active"{% endif %}>
+      🔍 Find Rides
+    </a>
+    <a href="{{ url_for('driver_requests') }}"
+       {% if request.endpoint == 'driver_requests' %}class="active"{% endif %}>
+      📬 Requests
+      {% if pending_count is defined and pending_count > 0 %}
+        <span class="nav-badge">{{ pending_count }}</span>
+      {% endif %}
+    </a>
+    <form method="post" action="{{ url_for('logout') }}">
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+</nav>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
